@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TP3 — Flexbox, Formularios y React</title>
+    <meta
+      name="description"
+      content="Trabajo Práctico 3 — Sitio de 4 páginas que demuestra el uso de Flexbox, JavaScript vanilla y React."
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-brand">
+        <span class="brand-dot"></span>
+        TP3
+      </a>
+      <ul class="navbar-links">
+        <li><a href="flexbox.html">Flexbox</a></li>
+        <li><a href="personas.html">Personas</a></li>
+        <li><a href="react.html">React</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero animate-in">
+      <span class="hero-eyebrow">Trabajo Práctico 3</span>
+      <h1>Flexbox, Formularios<br />Dinámicos y React</h1>
+      <p class="hero-sub">
+        Un sitio de cuatro páginas que demuestra el uso de Flexbox, JavaScript
+        vanilla y React con manipulación del DOM.
+      </p>
+      <div class="hero-chips">
+        <span class="chip">📐 Flexbox</span>
+        <span class="chip">⚡ JavaScript</span>
+        <span class="chip">🧩 DOM</span>
+        <span class="chip">⚛️ React</span>
+      </div>
+    </section>
+
+    <!-- Exercise Cards -->
+    <section class="cards-section">
+      <h2>Ejercicios</h2>
+      <div class="cards-grid">
+        <!-- Ejercicio 1 -->
+        <a href="flexbox.html" class="ex-card" id="link-flexbox">
+          <span class="ex-card-num">Ejercicio 1</span>
+          <div class="ex-card-icon">📦</div>
+          <h3>Maquetación Flexbox</h3>
+          <p>
+            Tarjetas generadas dinámicamente desde un arreglo JS con
+            interacciones de ordenamiento y filtrado.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Flexbox</span>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">DOM</span>
+          </div>
+          <span class="ex-card-link">Ver ejercicio <span>→</span></span>
+        </a>
+
+        <!-- Ejercicio 2 -->
+        <a href="personas.html" class="ex-card" id="link-personas">
+          <span class="ex-card-num">Ejercicio 2</span>
+          <div class="ex-card-icon">👥</div>
+          <h3>Formulario de Personas</h3>
+          <p>
+            Formulario para cargar personas con cálculo de IMC. Permite agregar
+            y eliminar filas de la tabla.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">DOM</span>
+            <span class="tech-tag">Eventos</span>
+          </div>
+          <span class="ex-card-link">Ver ejercicio <span>→</span></span>
+        </a>
+
+        <!-- Ejercicio 3 -->
+        <a href="react.html" class="ex-card" id="link-react">
+          <span class="ex-card-num">Ejercicio 3</span>
+          <div class="ex-card-icon">⚛️</div>
+          <h3>Personas con React</h3>
+          <p>
+            Misma funcionalidad del ejercicio 2 resuelta con React: componentes,
+            estado y eventos.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">React</span>
+            <span class="tech-tag">useState</span>
+            <span class="tech-tag">JSX</span>
+          </div>
+          <span class="ex-card-link">Ver ejercicio <span>→</span></span>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <p>TP3 — UTN &bull; Flores Alexander Exequiel - Com A &bull; 2026</p>
+    </footer>
+  </body>
+</html>
