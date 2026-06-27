@@ -254,5 +254,296 @@
     <footer>
       <p>TP3 — UTN &bull; Flores Alexander Exequiel - Com A &bull; 2026</p>
     </footer>
+
+    <script>
+      /* ====================================================
+       EJERCICIO 2 — Formulario de personas con JS vanilla
+       ==================================================== */
+
+      // Arreglo de personas (estado de la app)
+      let personas = [];
+      let proximoId = 1;
+
+      // IDs de los campos del formulario
+      const campos = [
+        "inputNombre",
+        "inputApellido",
+        "inputEdad",
+        "inputAltura",
+        "inputPeso",
+      ];
+
+      /* ---- Cálculo de IMC ---- */
+      function calcularIMC(peso, altura) {
+        const imc = peso / (altura * altura);
+        return parseFloat(imc.toFixed(1));
+      }
+
+      function categoriaIMC(imc) {
+        if (imc < 18.5) return { label: "Bajo peso", clase: "imc-bajo" };
+        if (imc < 25) return { label: "Normal", clase: "imc-normal" };
+        if (imc < 30) return { label: "Sobrepeso", clase: "imc-sobrepeso" };
+        return { label: "Obesidad", clase: "imc-obesidad" };
+      }
+
+      /* ---- Validación ---- */
+      function validarFormulario() {
+        const nombre = document.getElementById("inputNombre").value.trim();
+        const apellido = document.getElementById("inputApellido").value.trim();
+        const edad = parseFloat(document.getElementById("inputEdad").value);
+        const altura = parseFloat(document.getElementById("inputAltura").value);
+        const peso = parseFloat(document.getElementById("inputPeso").value);
+
+        if (!nombre || !apellido) {
+          mostrarAlerta("error", "⚠️ Nombre y apellido son obligatorios.");
+          return null;
+        }
+        if (isNaN(edad) || edad < 1 || edad > 120) {
+          mostrarAlerta(
+            "error",
+            "⚠️ La edad debe ser un número entre 1 y 120.",
+          );
+          return null;
+        }
+        if (isNaN(altura) || altura < 0.5 || altura > 2.5) {
+          mostrarAlerta(
+            "error",
+            "⚠️ La altura debe estar entre 0.5 y 2.5 metros.",
+          );
+          return null;
+        }
+        if (isNaN(peso) || peso < 1 || peso > 500) {
+          mostrarAlerta(
+            "error",
+            "⚠️ El peso debe ser un número entre 1 y 500 kg.",
+          );
+          return null;
+        }
+
+        return { nombre, apellido, edad, altura, peso };
+      }
+
+      /* ---- Agregar persona ---- */
+      function agregarPersona() {
+        const datos = validarFormulario();
+        if (!datos) return;
+
+        const imc = calcularIMC(datos.peso, datos.altura);
+        const persona = { id: proximoId++, imc, ...datos };
+        personas.push(persona);
+
+        insertarFila(persona);
+        limpiarFormulario();
+        actualizarResumen();
+        mostrarAlerta(
+          "success",
+          `✅ ${datos.nombre} ${datos.apellido} agregado/a correctamente.`,
+        );
+
+        setTimeout(() => ocultarAlerta(), 3000);
+      }
+
+      /* ---- Insertar fila en la tabla (manipulación DOM directa) ---- */
+      function insertarFila(persona) {
+        const tbody = document.getElementById("tbodyPersonas");
+
+        // Quitar estado vacío si existe
+        const emptyRow = document.getElementById("emptyRow");
+        if (emptyRow) emptyRow.remove();
+
+        const cat = categoriaIMC(persona.imc);
+        const tr = document.createElement("tr");
+        tr.id = `fila-${persona.id}`;
+        tr.classList.add("new-row");
+
+        tr.innerHTML = `
+        <td style="color:var(--text-muted);font-size:.8rem;">${personas.length}</td>
+        <td><strong>${escapeHTML(persona.nombre)}</strong></td>
+        <td>${escapeHTML(persona.apellido)}</td>
+        <td>${persona.edad} años</td>
+        <td>${persona.altura.toFixed(2)} m</td>
+        <td>${persona.peso} kg</td>
+        <td>
+          <span class="imc-badge ${cat.clase}">
+            ${persona.imc} — ${cat.label}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="eliminarPersona(${persona.id})">
+            🗑 Quitar
+          </button>
+        </td>
+      `;
+
+        tbody.appendChild(tr);
+
+        // Actualizar contador del badge
+        document.getElementById("counterBadge").textContent = personas.length;
+        document.getElementById("btnLimpiar").style.display =
+          personas.length > 0 ? "inline-flex" : "none";
+      }
+
+      /* ---- Eliminar persona ---- */
+      function eliminarPersona(id) {
+        personas = personas.filter((p) => p.id !== id);
+        const fila = document.getElementById(`fila-${id}`);
+
+        if (fila) {
+          fila.classList.add("removing");
+          setTimeout(() => {
+            fila.remove();
+            renumerarFilas();
+            actualizarResumen();
+
+            if (personas.length === 0) {
+              mostrarFilaVacia();
+            }
+          }, 250);
+        }
+
+        document.getElementById("counterBadge").textContent = personas.length;
+        document.getElementById("btnLimpiar").style.display =
+          personas.length > 0 ? "inline-flex" : "none";
+      }
+
+      /* ---- Renumerar filas ---- */
+      function renumerarFilas() {
+        const filas = document.querySelectorAll(
+          '#tbodyPersonas tr[id^="fila-"]',
+        );
+        filas.forEach((fila, idx) => {
+          fila.querySelector("td:first-child").textContent = idx + 1;
+        });
+      }
+
+      /* ---- Limpiar todo ---- */
+      function limpiarTodo() {
+        if (!confirm("¿Seguro que querés eliminar todas las personas?")) return;
+        personas = [];
+        const tbody = document.getElementById("tbodyPersonas");
+        tbody.innerHTML = "";
+        mostrarFilaVacia();
+        actualizarResumen();
+        document.getElementById("counterBadge").textContent = 0;
+        document.getElementById("btnLimpiar").style.display = "none";
+      }
+
+      /* ---- Fila vacía ---- */
+      function mostrarFilaVacia() {
+        const tbody = document.getElementById("tbodyPersonas");
+        const tr = document.createElement("tr");
+        tr.id = "emptyRow";
+        tr.innerHTML = `
+        <td colspan="8">
+          <div class="empty-state">
+            <div class="empty-icon">👤</div>
+            <p>No hay personas cargadas.<br>Usá el formulario para agregar.</p>
+          </div>
+        </td>`;
+        tbody.appendChild(tr);
+      }
+
+      /* ---- Resumen estadístico ---- */
+      function actualizarResumen() {
+        const section = document.getElementById("summarySection");
+        if (personas.length === 0) {
+          section.style.display = "none";
+          return;
+        }
+
+        section.style.display = "flex";
+        const total = personas.length;
+        const promIMC = (
+          personas.reduce((s, p) => s + p.imc, 0) / total
+        ).toFixed(1);
+        const promEdad = Math.round(
+          personas.reduce((s, p) => s + p.edad, 0) / total,
+        );
+        const promPeso = (
+          personas.reduce((s, p) => s + p.peso, 0) / total
+        ).toFixed(1);
+
+        document.getElementById("sumTotal").textContent = total;
+        document.getElementById("sumIMC").textContent = promIMC;
+        document.getElementById("sumEdad").textContent = promEdad;
+        document.getElementById("sumPeso").textContent = promPeso;
+      }
+
+      /* ---- Limpieza formulario ---- */
+      function limpiarFormulario() {
+        campos.forEach((id) => {
+          const el = document.getElementById(id);
+          el.value = "";
+          el.classList.remove("error");
+        });
+        document.getElementById("inputNombre").focus();
+      }
+
+      /* ---- Alertas ---- */
+      function mostrarAlerta(tipo, mensaje) {
+        const el = document.getElementById("alertMsg");
+        el.textContent = mensaje;
+        el.className = `alert show alert-${tipo}`;
+      }
+
+      function ocultarAlerta() {
+        const el = document.getElementById("alertMsg");
+        el.className = "alert";
+      }
+
+      /* ---- Seguridad XSS ---- */
+      function escapeHTML(str) {
+        const d = document.createElement("div");
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
+      }
+
+      /* ---- Enter en formulario ---- */
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && e.target.classList.contains("form-control")) {
+          e.preventDefault();
+          agregarPersona();
+        }
+      });
+
+      /* ---- Datos de ejemplo precargados ---- */
+      function cargarEjemplos() {
+        const ejemplos = [
+          {
+            nombre: "Lucía",
+            apellido: "Rodríguez",
+            edad: 28,
+            altura: 1.65,
+            peso: 62,
+          },
+          {
+            nombre: "Carlos",
+            apellido: "Gómez",
+            edad: 35,
+            altura: 1.78,
+            peso: 88,
+          },
+          {
+            nombre: "Ana",
+            apellido: "Martínez",
+            edad: 22,
+            altura: 1.6,
+            peso: 47,
+          },
+        ];
+
+        ejemplos.forEach((e) => {
+          const imc = calcularIMC(e.peso, e.altura);
+          const persona = { id: proximoId++, imc, ...e };
+          personas.push(persona);
+          insertarFila(persona);
+        });
+
+        actualizarResumen();
+      }
+
+      // Inicialización
+      cargarEjemplos();
+    </script>
   </body>
 </html>
