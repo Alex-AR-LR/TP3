@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 1 — Maquetación Flexbox | TP3</title>
+    <meta
+      name="description"
+      content="Ejercicio 1: tarjetas de lenguajes de programación generadas con JavaScript y organizadas con Flexbox."
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-brand">
+        <span class="brand-dot"></span>
+        TP3
+      </a>
+      <ul class="navbar-links">
+        <li><a href="flexbox.html" class="active">Flexbox</a></li>
+        <li><a href="personas.html">Personas</a></li>
+        <li><a href="react.html">React</a></li>
+      </ul>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header animate-in">
+      <span class="page-tag">Ejercicio 1</span>
+      <h1>Maquetación con Flexbox</h1>
+      <p>Tarjetas generadas dinámicamente desde un arreglo JavaScript.</p>
+    </header>
+
+    <!-- Content -->
+    <main class="container section">
+      <!-- Toolbar -->
+      <div class="toolbar animate-in" style="animation-delay: 0.1s">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Filtrar por nombre o tag..."
+            oninput="filtrarTarjetas()"
+            autocomplete="off"
+          />
+        </div>
+        <div class="toolbar-buttons">
+          <button class="btn btn-secondary" id="btnAZ" onclick="ordenar('az')">
+            A → Z
+          </button>
+          <button class="btn btn-secondary" id="btnZA" onclick="ordenar('za')">
+            Z → A
+          </button>
+          <button
+            class="btn btn-secondary"
+            id="btnYear"
+            onclick="ordenar('year')"
+          >
+            Por Año
+          </button>
+          <button
+            class="btn btn-secondary"
+            id="btnReset"
+            onclick="resetearVista()"
+          >
+            ↺ Restablecer
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar animate-in" style="animation-delay: 0.15s">
+        <p class="stats-count" id="statsCount">
+          Mostrando <strong>0</strong> lenguajes
+        </p>
+      </div>
+
+      <!-- Cards Grid (Flexbox) -->
+      <div id="cardsGrid"></div>
+    </main>
+  </body>
+</html>
