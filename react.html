@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 3 — Personas con React | TP3</title>
+    <meta
+      name="description"
+      content="Ejercicio 3: formulario de personas resuelto con React, useState y componentes JSX."
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- React 18 + Babel via CDN (jsDelivr, versiones fijas) -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.3/babel.min.js"></script>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-brand">
+        <span class="brand-dot"></span>
+        TP3
+      </a>
+      <ul class="navbar-links">
+        <li><a href="flexbox.html">Flexbox</a></li>
+        <li><a href="personas.html">Personas</a></li>
+        <li><a href="react.html" class="active">React</a></li>
+      </ul>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header animate-in">
+      <span class="page-tag">Ejercicio 3</span>
+      <h1>Personas con React</h1>
+      <p>
+        La misma funcionalidad del ejercicio 2, resuelta con
+        <span class="react-badge">⚛️ React</span> mediante componentes, estado y
+        eventos.
+      </p>
+    </header>
+
+    <!-- React App Root -->
+    <main class="container section" id="react-root"></main>
+
+    <footer>
+      <p>TP3 — UTN &bull; Flores Alexander Exequiel - Com A &bull; 2026</p>
+    </footer>
+
+    <!-- ============================================================
+       REACT APP — Componentes, estado y eventos con JSX via Babel
+       ============================================================ -->
+    <script type="text/babel" data-presets="react">
+      const { useState, useEffect, useRef } = React;
+
+      /* ========== Utilidades ========== */
+      function calcularIMC(peso, altura) {
+        return parseFloat((peso / (altura * altura)).toFixed(1));
+      }
+
+      function categoriaIMC(imc) {
+        if (imc < 18.5) return { label: "Bajo peso", clase: "imc-bajo" };
+        if (imc < 25) return { label: "Normal", clase: "imc-normal" };
+        if (imc < 30) return { label: "Sobrepeso", clase: "imc-sobrepeso" };
+        return { label: "Obesidad", clase: "imc-obesidad" };
+      }
+
+      const FORM_INICIAL = {
+        nombre: "",
+        apellido: "",
+        edad: "",
+        altura: "",
+        peso: "",
+      };
+
+      /* ========== Componente: Alerta ========== */
+      function Alerta({ mensaje, tipo }) {
+        if (!mensaje) return null;
+        return (
+          <div className={`alert alert-react alert-${tipo}`}>{mensaje}</div>
+        );
+      }
+
+      /* ========== Componente: PersonForm ========== */
+      function PersonForm({ onAgregar }) {
+        const [form, setForm] = useState(FORM_INICIAL);
+        const [alerta, setAlerta] = useState(null);
+        const nombreRef = useRef(null);
+
+        function handleChange(e) {
+          const { name, value } = e.target;
+          setForm((prev) => ({ ...prev, [name]: value }));
+        }
+
+        function mostrarAlerta(tipo, msg) {
+          setAlerta({ tipo, msg });
+          if (tipo === "success") {
+            setTimeout(() => setAlerta(null), 3000);
+          }
+        }
+
+        function handleSubmit(e) {
+          e.preventDefault();
+
+          const nombre = form.nombre.trim();
+          const apellido = form.apellido.trim();
+          const edad = parseFloat(form.edad);
+          const altura = parseFloat(form.altura);
+          const peso = parseFloat(form.peso);
+
+          // Validaciones
+          if (!nombre || !apellido) {
+            mostrarAlerta("error", "⚠️ Nombre y apellido son obligatorios.");
+            return;
+          }
+          if (isNaN(edad) || edad < 1 || edad > 120) {
+            mostrarAlerta("error", "⚠️ La edad debe ser entre 1 y 120 años.");
+            return;
+          }
+          if (isNaN(altura) || altura < 0.5 || altura > 2.5) {
+            mostrarAlerta(
+              "error",
+              "⚠️ La altura debe estar entre 0.5 y 2.5 metros.",
+            );
+            return;
+          }
+          if (isNaN(peso) || peso < 1 || peso > 500) {
+            mostrarAlerta(
+              "error",
+              "⚠️ El peso debe ser un número entre 1 y 500 kg.",
+            );
+            return;
+          }
+
+          const imc = calcularIMC(peso, altura);
+          onAgregar({ nombre, apellido, edad, altura, peso, imc });
+          setForm(FORM_INICIAL);
+          mostrarAlerta(
+            "success",
+            `✅ ${nombre} ${apellido} agregado/a correctamente.`,
+          );
+          nombreRef.current && nombreRef.current.focus();
+        }
+
+        return (
+          <aside
+            className="form-panel animate-in"
+            style={{ animationDelay: ".1s" }}
+          >
+            <div className="form-card">
+              <h2>➕ Nueva Persona</h2>
+              <form onSubmit={handleSubmit} noValidate>
+                <div className="form-fields">
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="r-nombre">Nombre</label>
+                      <input
+                        ref={nombreRef}
+                        type="text"
+                        id="r-nombre"
+                        name="nombre"
+                        className="form-control"
+                        placeholder="Ej: María"
+                        value={form.nombre}
+                        onChange={handleChange}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="r-apellido">Apellido</label>
+                      <input
+                        type="text"
+                        id="r-apellido"
+                        name="apellido"
+                        className="form-control"
+                        placeholder="Ej: López"
+                        value={form.apellido}
+                        onChange={handleChange}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="r-edad">Edad (años)</label>
+                    <input
+                      type="number"
+                      id="r-edad"
+                      name="edad"
+                      className="form-control"
+                      placeholder="Ej: 28"
+                      min="1"
+                      max="120"
+                      value={form.edad}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="r-altura">Altura (m)</label>
+                      <input
+                        type="number"
+                        id="r-altura"
+                        name="altura"
+                        className="form-control"
+                        placeholder="1.70"
+                        step="0.01"
+                        min="0.5"
+                        max="2.5"
+                        value={form.altura}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="r-peso">Peso (kg)</label>
+                      <input
+                        type="number"
+                        id="r-peso"
+                        name="peso"
+                        className="form-control"
+                        placeholder="70"
+                        step="0.1"
+                        min="1"
+                        max="500"
+                        value={form.peso}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  {alerta && <Alerta mensaje={alerta.msg} tipo={alerta.tipo} />}
+
+                  <button type="submit" className="btn btn-primary btn-submit">
+                    ➕ Agregar Persona
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Referencia IMC */}
+            <div
+              className="form-card"
+              style={{ marginTop: "1rem", padding: "1.1rem 1.25rem" }}
+            >
+              <h2 style={{ fontSize: ".85rem", marginBottom: ".75rem" }}>
+                📊 Referencia IMC
+              </h2>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: ".4rem",
+                  fontSize: ".8rem",
+                }}
+              >
+                {[
+                  { clase: "imc-bajo", label: "Bajo peso", rango: "< 18.5" },
+                  {
+                    clase: "imc-normal",
+                    label: "Normal",
+                    rango: "18.5 – 24.9",
+                  },
+                  {
+                    clase: "imc-sobrepeso",
+                    label: "Sobrepeso",
+                    rango: "25 – 29.9",
+                  },
+                  { clase: "imc-obesidad", label: "Obesidad", rango: "≥ 30" },
+                ].map((item) => (
+                  <div
+                    key={item.clase}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span className={`imc-badge ${item.clase}`}>
+                      {item.label}
+                    </span>
+                    <span style={{ color: "var(--text-muted)" }}>
+                      {item.rango}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
+        );
+      }
+
+      /* ========== Componente: PersonRow ========== */
+      function PersonRow({ persona, numero, onEliminar }) {
+        const cat = categoriaIMC(persona.imc);
+        return (
+          <tr id={`react-fila-${persona.id}`} className="animate-fade">
+            <td style={{ color: "var(--text-muted)", fontSize: ".8rem" }}>
+              {numero}
+            </td>
+            <td>
+              <strong>{persona.nombre}</strong>
+            </td>
+            <td>{persona.apellido}</td>
+            <td>{persona.edad} años</td>
+            <td>{parseFloat(persona.altura).toFixed(2)} m</td>
+            <td>{persona.peso} kg</td>
+            <td>
+              <span className={`imc-badge ${cat.clase}`}>
+                {persona.imc} — {cat.label}
+              </span>
+            </td>
+            <td>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => onEliminar(persona.id)}
+                id={`btn-eliminar-${persona.id}`}
+              >
+                🗑 Quitar
+              </button>
+            </td>
+          </tr>
+        );
+      }
+
+      /* ========== Componente: PersonTable ========== */
+      function PersonTable({ personas, onEliminar, onLimpiarTodo }) {
+        if (personas.length === 0) {
+          return (
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Edad</th>
+                    <th>Altura</th>
+                    <th>Peso</th>
+                    <th>IMC</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan="8">
+                      <div className="empty-state">
+                        <div className="empty-icon">👤</div>
+                        <p>
+                          Aún no hay personas cargadas.
+                          <br />
+                          Usá el formulario para agregar.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          );
+        }
+
+        return (
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>Edad</th>
+                  <th>Altura</th>
+                  <th>Peso</th>
+                  <th>IMC</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {personas.map((p, i) => (
+                  <PersonRow
+                    key={p.id}
+                    persona={p}
+                    numero={i + 1}
+                    onEliminar={onEliminar}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+
+      /* ========== Componente: ResumenEstadistico ========== */
+      function ResumenEstadistico({ personas }) {
+        if (personas.length === 0) return null;
+
+        const total = personas.length;
+        const promIMC = (
+          personas.reduce((s, p) => s + p.imc, 0) / total
+        ).toFixed(1);
+        const promEdad = Math.round(
+          personas.reduce((s, p) => s + p.edad, 0) / total,
+        );
+        const promPeso = (
+          personas.reduce((s, p) => s + p.peso, 0) / total
+        ).toFixed(1);
+
+        return (
+          <div className="summary-cards">
+            {[
+              { label: "Total", value: total, sub: "personas" },
+              { label: "IMC Promedio", value: promIMC, sub: "kg/m²" },
+              { label: "Edad Promedio", value: promEdad, sub: "años" },
+              { label: "Peso Promedio", value: promPeso, sub: "kg" },
+            ].map((item) => (
+              <div className="summary-card" key={item.label}>
+                <div className="s-label">{item.label}</div>
+                <div className="s-value">{item.value}</div>
+                <div className="s-sub">{item.sub}</div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      /* ========== Componente Principal: App ========== */
+      function App() {
+        const [personas, setPersonas] = useState([
+          {
+            id: 1,
+            nombre: "Lucía",
+            apellido: "Rodríguez",
+            edad: 28,
+            altura: 1.65,
+            peso: 62,
+            imc: calcularIMC(62, 1.65),
+          },
+          {
+            id: 2,
+            nombre: "Carlos",
+            apellido: "Gómez",
+            edad: 35,
+            altura: 1.78,
+            peso: 88,
+            imc: calcularIMC(88, 1.78),
+          },
+          {
+            id: 3,
+            nombre: "Ana",
+            apellido: "Martínez",
+            edad: 22,
+            altura: 1.6,
+            peso: 47,
+            imc: calcularIMC(47, 1.6),
+          },
+        ]);
+        const [proximoId, setProximoId] = useState(4);
+
+        function agregarPersona(datos) {
+          const nueva = { ...datos, id: proximoId };
+          setPersonas((prev) => [...prev, nueva]);
+          setProximoId((prev) => prev + 1);
+        }
+
+        function eliminarPersona(id) {
+          setPersonas((prev) => prev.filter((p) => p.id !== id));
+        }
+
+        function limpiarTodo() {
+          if (
+            window.confirm("¿Seguro que querés eliminar todas las personas?")
+          ) {
+            setPersonas([]);
+          }
+        }
+
+        return (
+          <div className="page-layout">
+            {/* Formulario */}
+            <PersonForm onAgregar={agregarPersona} />
+
+            {/* Panel de tabla */}
+            <div
+              className="table-panel animate-in"
+              style={{ animationDelay: ".15s" }}
+            >
+              <div className="table-header">
+                <h2>
+                  📋 Lista de Personas{" "}
+                  <span className="counter-badge">{personas.length}</span>
+                </h2>
+                {personas.length > 0 && (
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={limpiarTodo}
+                  >
+                    🗑 Limpiar todo
+                  </button>
+                )}
+              </div>
+
+              <PersonTable
+                personas={personas}
+                onEliminar={eliminarPersona}
+                onLimpiarTodo={limpiarTodo}
+              />
+
+              <ResumenEstadistico personas={personas} />
+            </div>
+          </div>
+        );
+      }
+
+      /* ========== Montaje de React ========== */
+      const root = ReactDOM.createRoot(document.getElementById("react-root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
