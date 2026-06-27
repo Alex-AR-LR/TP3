@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 2 — Formulario de Personas | TP3</title>
+    <meta
+      name="description"
+      content="Ejercicio 2: formulario con JavaScript vanilla para cargar personas y calcular el IMC."
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-brand">
+        <span class="brand-dot"></span>
+        TP3
+      </a>
+      <ul class="navbar-links">
+        <li><a href="flexbox.html">Flexbox</a></li>
+        <li><a href="personas.html" class="active">Personas</a></li>
+        <li><a href="react.html">React</a></li>
+      </ul>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header animate-in">
+      <span class="page-tag">Ejercicio 2</span>
+      <h1>Formulario de Personas</h1>
+      <p>
+        Cargá personas con el formulario y visualizá sus datos en la tabla con
+        el IMC calculado automáticamente.
+      </p>
+    </header>
+
+    <!-- Content -->
+    <main class="container section">
+      <div class="page-layout">
+        <!-- FORM PANEL -->
+        <aside class="form-panel animate-in" style="animation-delay: 0.1s">
+          <div class="form-card">
+            <h2>➕ Nueva Persona</h2>
+
+            <div class="form-fields">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="inputNombre">Nombre</label>
+                  <input
+                    type="text"
+                    id="inputNombre"
+                    class="form-control"
+                    placeholder="Ej: María"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="inputApellido">Apellido</label>
+                  <input
+                    type="text"
+                    id="inputApellido"
+                    class="form-control"
+                    placeholder="Ej: López"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="inputEdad">Edad (años)</label>
+                <input
+                  type="number"
+                  id="inputEdad"
+                  class="form-control"
+                  placeholder="Ej: 28"
+                  min="1"
+                  max="120"
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="inputAltura">Altura (m)</label>
+                  <input
+                    type="number"
+                    id="inputAltura"
+                    class="form-control"
+                    placeholder="1.70"
+                    step="0.01"
+                    min="0.5"
+                    max="2.5"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="inputPeso">Peso (kg)</label>
+                  <input
+                    type="number"
+                    id="inputPeso"
+                    class="form-control"
+                    placeholder="70"
+                    step="0.1"
+                    min="1"
+                    max="500"
+                  />
+                </div>
+              </div>
+
+              <div id="alertMsg" class="alert"></div>
+
+              <button
+                class="btn btn-primary btn-submit"
+                id="btnAgregar"
+                onclick="agregarPersona()"
+              >
+                ➕ Agregar Persona
+              </button>
+            </div>
+          </div>
+
+          <!-- IMC Reference -->
+          <div
+            class="form-card"
+            style="margin-top: 1rem; padding: 1.1rem 1.25rem"
+          >
+            <h2 style="font-size: 0.85rem; margin-bottom: 0.75rem">
+              📊 Referencia IMC
+            </h2>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 0.4rem;
+                font-size: 0.8rem;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span class="imc-badge imc-bajo">Bajo peso</span>
+                <span style="color: var(--text-muted)">&lt; 18.5</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span class="imc-badge imc-normal">Normal</span>
+                <span style="color: var(--text-muted)">18.5 – 24.9</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span class="imc-badge imc-sobrepeso">Sobrepeso</span>
+                <span style="color: var(--text-muted)">25 – 29.9</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span class="imc-badge imc-obesidad">Obesidad</span>
+                <span style="color: var(--text-muted)">≥ 30</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- TABLE PANEL -->
+        <div class="table-panel animate-in" style="animation-delay: 0.15s">
+          <div class="table-header">
+            <h2>
+              📋 Lista de Personas
+              <span class="counter-badge" id="counterBadge">0</span>
+            </h2>
+            <button
+              class="btn btn-secondary btn-sm"
+              onclick="limpiarTodo()"
+              id="btnLimpiar"
+              style="display: none"
+            >
+              🗑 Limpiar todo
+            </button>
+          </div>
+
+          <div class="table-wrapper">
+            <table id="tablaPersonas">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>Edad</th>
+                  <th>Altura</th>
+                  <th>Peso</th>
+                  <th>IMC</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyPersonas">
+                <tr id="emptyRow">
+                  <td colspan="8">
+                    <div class="empty-state">
+                      <div class="empty-icon">👤</div>
+                      <p>
+                        Aún no hay personas cargadas.<br />Usá el formulario
+                        para agregar.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Summary -->
+          <div class="summary-cards" id="summarySection" style="display: none">
+            <div class="summary-card">
+              <div class="s-label">Total</div>
+              <div class="s-value" id="sumTotal">0</div>
+              <div class="s-sub">personas</div>
+            </div>
+            <div class="summary-card">
+              <div class="s-label">IMC Promedio</div>
+              <div class="s-value" id="sumIMC">—</div>
+              <div class="s-sub">kg/m²</div>
+            </div>
+            <div class="summary-card">
+              <div class="s-label">Edad Promedio</div>
+              <div class="s-value" id="sumEdad">—</div>
+              <div class="s-sub">años</div>
+            </div>
+            <div class="summary-card">
+              <div class="s-label">Peso Promedio</div>
+              <div class="s-value" id="sumPeso">—</div>
+              <div class="s-sub">kg</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>TP3 — UTN &bull; Flores Alexander Exequiel - Com A &bull; 2026</p>
+    </footer>
+  </body>
+</html>
