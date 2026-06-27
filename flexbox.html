@@ -84,5 +84,192 @@
         <p>TP3 — UTN &bull; Flores Alexander Exequiel - Com A &bull; 2026</p>
       </footer>
     </main>
+
+    <script>
+      /* ====================================================
+       EJERCICIO 1 — Flexbox + JavaScript vanilla
+       ==================================================== */
+
+      // Arreglo de lenguajes de programación
+      const lenguajes = [
+        {
+          emoji: "🐍",
+          nombre: "Python",
+          año: 1991,
+          descripcion:
+            "Lenguaje multiparadigma de alto nivel, famoso por su legibilidad y extenso ecosistema de librerías para ciencia de datos e IA.",
+          tags: ["Scripting", "IA", "Data Science"],
+          color: "#3d8fc9",
+        },
+        {
+          emoji: "☕",
+          nombre: "Java",
+          año: 1995,
+          descripcion:
+            "Lenguaje orientado a objetos, fuertemente tipado y portable. Muy utilizado en aplicaciones empresariales y desarrollo Android.",
+          tags: ["OOP", "Backend", "Android"],
+          color: "#e76f00",
+        },
+        {
+          emoji: "⚡",
+          nombre: "JavaScript",
+          año: 1995,
+          descripcion:
+            "El lenguaje del navegador. Permite crear interfaces interactivas, servidores con Node.js y aplicaciones móviles con React Native.",
+          tags: ["Frontend", "Backend", "Web"],
+          color: "#f0db4f",
+        },
+        {
+          emoji: "🦀",
+          nombre: "Rust",
+          año: 2010,
+          descripcion:
+            "Lenguaje de sistemas con énfasis en seguridad de memoria y rendimiento. Ideal para software de bajo nivel y WebAssembly.",
+          tags: ["Sistemas", "WASM", "Bajo nivel"],
+          color: "#ce422b",
+        },
+        {
+          emoji: "🐹",
+          nombre: "Go",
+          año: 2009,
+          descripcion:
+            "Creado por Google. Simple, compilado y con soporte nativo para concurrencia. Muy popular para microservicios y herramientas CLI.",
+          tags: ["Backend", "Concurrencia", "Cloud"],
+          color: "#00acd7",
+        },
+        {
+          emoji: "💙",
+          nombre: "TypeScript",
+          año: 2012,
+          descripcion:
+            "Superconjunto tipado de JavaScript desarrollado por Microsoft. Mejora la mantenibilidad de proyectos grandes.",
+          tags: ["Frontend", "Tipado", "OOP"],
+          color: "#3178c6",
+        },
+        {
+          emoji: "🍎",
+          nombre: "Swift",
+          año: 2014,
+          descripcion:
+            "Lenguaje moderno de Apple para iOS y macOS. Combina seguridad de tipos, rendimiento nativo y una sintaxis expresiva.",
+          tags: ["iOS", "macOS", "Mobile"],
+          color: "#f05138",
+        },
+        {
+          emoji: "🐘",
+          nombre: "PHP",
+          año: 1994,
+          descripcion:
+            "El lenguaje del servidor web por excelencia. Impulsa WordPress, Laravel y gran parte de la web dinámica actual.",
+          tags: ["Backend", "Web", "CMS"],
+          color: "#8892bf",
+        },
+      ];
+
+      // Estado de la aplicación
+      let datosMostrados = [...lenguajes];
+      let terminoBusqueda = "";
+
+      /* ---- Funciones de renderizado ---- */
+      function renderizarTarjetas(lista) {
+        const grid = document.getElementById("cardsGrid");
+        const stats = document.getElementById("statsCount");
+
+        stats.innerHTML = `Mostrando <strong>${lista.length}</strong> lenguaje${lista.length !== 1 ? "s" : ""}`;
+
+        if (lista.length === 0) {
+          grid.innerHTML = `
+          <div class="no-results">
+            <span class="no-results-icon">🔎</span>
+            <p>No se encontraron lenguajes que coincidan con "<strong>${terminoBusqueda}</strong>".</p>
+          </div>`;
+          return;
+        }
+
+        grid.innerHTML = lista
+          .map(
+            (lang, i) => `
+        <div
+          class="tech-card"
+          style="--card-color: ${lang.color}; animation-delay: ${i * 0.06}s;"
+          id="card-${lang.nombre.toLowerCase()}"
+        >
+          <span class="card-emoji">${lang.emoji}</span>
+          <div>
+            <div class="card-name">${lang.nombre}</div>
+            <div class="card-year">Creado en ${lang.año}</div>
+          </div>
+          <p class="card-desc">${lang.descripcion}</p>
+          <div class="card-tags">
+            ${lang.tags.map((t) => `<span class="card-tag">${t}</span>`).join("")}
+          </div>
+        </div>
+      `,
+          )
+          .join("");
+      }
+
+      /* ---- Filtrado ---- */
+      function filtrarTarjetas() {
+        terminoBusqueda = document
+          .getElementById("searchInput")
+          .value.toLowerCase()
+          .trim();
+        limpiarBotonesActivos();
+
+        if (terminoBusqueda === "") {
+          datosMostrados = [...lenguajes];
+        } else {
+          datosMostrados = lenguajes.filter(
+            (l) =>
+              l.nombre.toLowerCase().includes(terminoBusqueda) ||
+              l.tags.some((t) => t.toLowerCase().includes(terminoBusqueda)) ||
+              l.descripcion.toLowerCase().includes(terminoBusqueda),
+          );
+        }
+
+        renderizarTarjetas(datosMostrados);
+      }
+
+      /* ---- Ordenamiento ---- */
+      function ordenar(criterio) {
+        limpiarBotonesActivos();
+
+        const copiar = [...datosMostrados];
+
+        if (criterio === "az") {
+          copiar.sort((a, b) => a.nombre.localeCompare(b.nombre));
+          document.getElementById("btnAZ").classList.add("active");
+        } else if (criterio === "za") {
+          copiar.sort((a, b) => b.nombre.localeCompare(a.nombre));
+          document.getElementById("btnZA").classList.add("active");
+        } else if (criterio === "year") {
+          copiar.sort((a, b) => a.año - b.año);
+          document.getElementById("btnYear").classList.add("active");
+        }
+
+        datosMostrados = copiar;
+        renderizarTarjetas(datosMostrados);
+      }
+
+      /* ---- Restablecer ---- */
+      function resetearVista() {
+        terminoBusqueda = "";
+        document.getElementById("searchInput").value = "";
+        datosMostrados = [...lenguajes];
+        limpiarBotonesActivos();
+        renderizarTarjetas(datosMostrados);
+      }
+
+      /* ---- Utilidades ---- */
+      function limpiarBotonesActivos() {
+        ["btnAZ", "btnZA", "btnYear"].forEach((id) => {
+          document.getElementById(id).classList.remove("active");
+        });
+      }
+
+      // Inicialización
+      renderizarTarjetas(datosMostrados);
+    </script>
   </body>
 </html>
